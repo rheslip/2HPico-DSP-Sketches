@@ -28,6 +28,9 @@
 /*
 Delay example for 2HPico DSP hardware 
 R Heslip  Jan 2026
+Jan 30/25 - moved the setDelay() calls to the sample loop - improved the audio glitching when changing delay time
+
+Not very CPU intensive - Works OK at 150mhz and 44khz sampling
 
 Top Jack - Audio input 
 
@@ -59,8 +62,6 @@ Button - Toggles between mono and ping pong stereo output
 #define DEBUG   // comment out to remove debug code
 #define MONITOR_CPU1  // define to enable 2nd core monitoring
 
-#define GATE TRIGGER    // semantics - ADSR is generally used with a gate signal
-
 //#define SAMPLERATE 11025 
 //#define SAMPLERATE 22050  // 
 #define SAMPLERATE 44100  // not much DSP needed here so run at higher sample rate
@@ -81,7 +82,6 @@ daisysp::DelayLine<float,SAMPLERATE> delayL;  // 1 second delay
 daisysp::DelayLine<float,SAMPLERATE> delayR; 
 
 #define CV_VOLT 580.6  // a/d counts per volt - trim for V/octave
-#define UPDATETIME 20  // how fast to update parameters
 
 #define NUMUISTATES 1 // only 1 page in this UI
 enum UIstates {DELAY};
@@ -94,9 +94,9 @@ uint32_t buttontimer,parameterupdate,timelock;
 bool pingpongmode=0;
 
 float delayfeedback,delaymix, outputlevel;
-// Persistent filtered Value for smooth delay time changes.
-#define TIMEAVG 1000
-float smoothed_time;
+// filtered Values for smooth delay time changes.
+#define TIMEAVG 2000
+float smoothed_time, delay_time;
 
 void setup() { 
   Serial.begin(115200);
@@ -176,10 +176,7 @@ void loop() {
 // assign parameters from panel pots
     switch (UIstate) {
         case DELAY:
-          if (!potlock[0]) {  
-            delayL.SetDelay(smoothed_time/TIMEAVG);
-            delayR.SetDelay(smoothed_time/TIMEAVG);
-          }
+          if (!potlock[0]) delay_time=smoothed_time/TIMEAVG;
           if (!potlock[1]) delayfeedback=(mapf(pot[1],0,AD_RANGE-1,0,1.0)); // 
           if (!potlock[2]) delaymix=(mapf(pot[2],0,AD_RANGE-1,0,1.0)); // 
           if (!potlock[3]) outputlevel=(mapf(pot[3],0,AD_RANGE-1,0,1.0)); // 
@@ -200,10 +197,26 @@ delay (1000); // wait for main core to start up peripherals
 // process audio samples
 void loop1(){
   float sigL,sigR,outL,outR,delayedL,delayedR;
+  static float current_time;
   int32_t left,right;
 
+
+
+// these calls will stall if not data is available
   left=i2s.read();    // input is mono but we still have to read both channels
   right=i2s.read();
+
+#ifdef MONITOR_CPU1
+  digitalWrite(CPU_USE,1); // hi = CPU busy
+#endif
+
+// ramp delay time up or down by one sample to match the time set by user 
+// this minimizes the glitches caused by large changes in delay time
+  if (current_time < delay_time) current_time+=1; 
+  else current_time-=1;
+
+  delayL.SetDelay(current_time);
+  delayR.SetDelay(current_time);
 
   sigL=left*DIV_16; // convert input to float for DaisySP
   sigR=left*DIV_16; 
@@ -232,11 +245,8 @@ void loop1(){
   digitalWrite(CPU_USE,0); // low - CPU not busy
 #endif
 
+// these calls will stall if buffer is full
 	i2s.write(left); // left passthru
 	i2s.write(right); // right passthru
-
-#ifdef MONITOR_CPU1
-  digitalWrite(CPU_USE,1); // hi = CPU busy
-#endif
 
 }

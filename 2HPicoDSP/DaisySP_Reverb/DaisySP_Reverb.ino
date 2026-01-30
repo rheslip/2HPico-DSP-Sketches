@@ -29,6 +29,8 @@
 Reverb example for 2HPico DSP hardware 
 R Heslip  Jan 2026
 
+Uses most of the Pico2's memory but its reasonably light on CPU - can run 44khz sampling at 150mhz
+
 Top Jack - Audio input 
 
 Middle jack - Right Audio out (solder the DAC jumper on the back of the PCB)
@@ -57,11 +59,9 @@ Fourth pot - Output level
 #define DEBUG   // comment out to remove debug code
 #define MONITOR_CPU1  // define to enable 2nd core monitoring
 
-#define GATE TRIGGER    // semantics - ADSR is generally used with a gate signal
-
 //#define SAMPLERATE 11025 
 //#define SAMPLERATE 22050  // 
-#define SAMPLERATE 44100  // not much DSP needed here so run at higher sample rate
+#define SAMPLERATE 44100  // run at higher sample rate - works OK at 150mhz
 
 Adafruit_NeoPixel LEDS(NUMPIXELS, LEDPIN, NEO_GRB + NEO_KHZ800);
 
@@ -179,8 +179,13 @@ void loop1(){
   float sigL,sigR,outL,outR;
   int32_t left,right;
 
+// these calls will stall if not data is available
   left=i2s.read();    // input is mono but we still have to read both channels
   right=i2s.read();
+
+#ifdef MONITOR_CPU1
+  digitalWrite(CPU_USE,1); // hi = CPU busy
+#endif
 
   sigL=left*DIV_16; // convert input to float for DaisySP
   sigR=left*DIV_16; 
@@ -199,12 +204,8 @@ void loop1(){
 #ifdef MONITOR_CPU1  
   digitalWrite(CPU_USE,0); // low - CPU not busy
 #endif
-
+// these calls will stall if buffer is full
 	i2s.write(left); // left passthru
 	i2s.write(right); // right passthru
-
-#ifdef MONITOR_CPU1
-  digitalWrite(CPU_USE,1); // hi = CPU busy
-#endif
 
 }
