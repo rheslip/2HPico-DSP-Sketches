@@ -6,7 +6,7 @@ Jan 28 2026 - added Reverb and Delay sketches.
 
 You must have Arduino 2.xx installed with the Pico board support package https://github.com/earlephilhower/arduino-pico
 
-The DSP version of 2HPico requires a Raspberry Pico Pico 2 because most DSP apps are fairly compute intensive and the DaisySP library uses floating point. Some sketches require overclocking - check the comments in the source code.
+The DSP version of 2HPico requires an RP2350 processor since most DSP apps are fairly compute intensive. The DaisySP library uses floating point calculations extensively and will run very poorly on an RP2040. Some sketches require overclocking - check the comments in the source code.
 
 Dependencies:
 
