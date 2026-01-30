@@ -1,4 +1,4 @@
-# 2HPIco DSP Sketches
+# 2HPico DSP Sketches
 
 Arduino Pico sketches for the 2HPico DSP Eurorack module https://github.com/rheslip/2HPico-Eurorack-Module-Hardware
 
@@ -6,7 +6,7 @@ Jan 28 2026 - added Reverb and Delay sketches.
 
 You must have Arduino 2.xx installed with the Pico board support package https://github.com/earlephilhower/arduino-pico
 
-Select board type as Raspberry Pi Pico or Raspberry Pico Pico 2 depending on what board you used when building the module. Some sketches require overclocking - check the comments in the source code.
+The DSP version of 2HPico requires a Raspberry Pico Pico 2 because most DSP apps are fairly compute intensive and the DaisySP library uses floating point. Some sketches require overclocking - check the comments in the source code.
 
 Dependencies:
 
