@@ -3,6 +3,7 @@
 Arduino Pico sketches for the 2HPico DSP Eurorack module https://github.com/rheslip/2HPico-Eurorack-Module-Hardware
 
 Jan 28 2026 - added Reverb and Delay sketches. 
+
 Feb 1 2026 - added Chorus, Flanger and Pitchshifter example sketches
 
 You must have Arduino 2.xx installed with the Pico board support package https://github.com/earlephilhower/arduino-pico
