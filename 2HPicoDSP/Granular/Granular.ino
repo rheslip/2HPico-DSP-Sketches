@@ -176,7 +176,6 @@ void loop1(){
   digitalWrite(CPU_USE,1); // hi = CPU busy
 #endif
 
- // granular.process(left>>16, &out);
    out=granular.process(left>>16);
 
   mix=(left>>16)*outputmix+(int32_t)out*(OUTPUTMAX-outputmix); // mix input and processed signals

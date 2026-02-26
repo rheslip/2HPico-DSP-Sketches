@@ -65,7 +65,6 @@ private:
         grains[i].length = grainSize;
         grains[i].speed = pitch;
         grains[i].pos = (writePos + random(0,-BUFFER_SIZE/2)) % BUFFER_SIZE;
-        Serial.printf("length %d pitch %f pos %d\n",grainSize,pitch,grains[i].pos);
         return;
       }
     }
