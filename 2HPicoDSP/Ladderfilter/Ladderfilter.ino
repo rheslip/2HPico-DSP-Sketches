@@ -43,7 +43,7 @@ Top pot - Filter Resonance
 
 Second pot - Initial Frequency
 
-Third pot - CV attenuverter
+Third pot - CV scale 0-1.5x
 
 Fourth pot - Output level
 
@@ -63,6 +63,7 @@ Fourth pot - Output level
 //#define SAMPLERATE 11025 
 //#define SAMPLERATE 22050  // 
 //#define SAMPLERATE 44100  // 
+//#define SAMPLERATE 48000  // 
 #define SAMPLERATE 96000  // run at high sample rate - works OK at 150mhz
 
 Adafruit_NeoPixel LEDS(NUMPIXELS, LEDPIN, NEO_GRB + NEO_KHZ800);
@@ -122,7 +123,7 @@ void setup() {
   i2s.setMCLK(MCLK);
   i2s.setMCLKmult(256);
   i2s.setBitsPerSample(32);
-  i2s.setFrequency(22050);
+  i2s.setFrequency(SAMPLERATE);
   i2s.begin();
 
   filt.Init(samplerate);
@@ -154,9 +155,9 @@ void loop() {
     switch (UIstate) {
         case SET1:
           LEDS.setPixelColor(0, RED);  
-          if (!potlock[0]) filt.SetRes(mapf(pot[0],0,AD_RANGE-1,0,0.98));  // don't take resonance too high or filter behaves badly
+          if (!potlock[0]) filt.SetRes(mapf(pot[0],0,AD_RANGE-1,0,0.95));  // don't take resonance too high or filter behaves badly
           if (!potlock[1]) filterfreq=(mapf(pot[1],0,AD_RANGE-1,10,3000)); // 
-          if (!potlock[2]) filtersweep=(mapf(pot[2],0,AD_RANGE-1,-1.5,1.5)); // 
+          if (!potlock[2]) filtersweep=(mapf(pot[2],0,AD_RANGE-1,0,1.5)); // 
           if (!potlock[3]) outputlevel=(mapf(pot[3],0,AD_RANGE-1,0,1.0)); // 
           break;
         default:
