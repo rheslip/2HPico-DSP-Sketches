@@ -6,7 +6,7 @@ Jan 28 2026 - added Reverb and Delay sketches.
 
 Feb 1 2026 - added Chorus, Flanger and Pitchshifter example sketches
 
-Feb 26/26 - added Granular sketch
+Feb 26/26 - added Granular and Ladderfilter sketches
 
 You must have Arduino 2.xx installed with the Pico board support package https://github.com/earlephilhower/arduino-pico
 
